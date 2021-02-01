@@ -65,21 +65,65 @@ namespace taskManager
 			this.db.users.Add(new_user);
 			this.db.SaveChanges();
 		}
+		public User ChoseUser() 
+		{
+			User choosenUser;
+			Console.WriteLine("USERS : ");
+			int counter = 0;
+			foreach (var key in users) { Console.WriteLine(counter + " ) " + key.Value.name + "  " + key.Value.id);counter++; }
+			Console.WriteLine("Enter user id :");
+			int userId = Convert.ToInt32(Console.ReadLine());
+			bool check = users.TryGetValue(userId,out choosenUser);
+			if (!check)
+            {
+				Console.WriteLine("no user with this id , try again !");
+				return this.ChoseUser();
+            }
+			return choosenUser;
+		}
+		public Task ChoseTask()
+		{
+			Task choosenTask = null;
+			Console.WriteLine("Tasks : ");
+			int counter = 0;
+			foreach (var key in tasks) { Console.WriteLine(counter + " ) " + key.Value.name + "  " + key.Value.date);counter++; }
+			Console.WriteLine("Enter Task number :");
+			int taskNumber = Convert.ToInt32(Console.ReadLine());
+			int counter2 = 0;
+			foreach (var key in tasks) 
+			{
+				if(counter2 == taskNumber)
+                {
+					choosenTask = key.Value;
+					break;
+                }
+				counter2++;
+			}
+			if (choosenTask == null)
+			{
+				Console.WriteLine("no task with this number , try again !");
+				return this.ChoseTask();
+			}
+			return choosenTask;
+		}
 
 		public void Assign()
 		{
-			Console.WriteLine("Enter task name :");
-			string taskName = Console.ReadLine();
-			Console.WriteLine("Enter user id :");
-			int userId = Convert.ToInt32(Console.ReadLine());
-			User user = users[userId];
-			Task task = tasks[taskName];
-			assignments[task].Add(userId, user);
-			assignment new_assignment = new assignment();
-			new_assignment.taskName = task.name;
-			new_assignment.userId = user.id;
-			this.db.assignments.Add(new_assignment);
-			this.db.SaveChanges();
+			User user = this.ChoseUser();
+			Task task = this.ChoseTask();
+			bool check = assignments[task].TryGetValue(user.id,out User user1);
+            if (check)
+            {
+				Console.WriteLine("task already assigned to this user !");
+            }else
+            {
+				assignments[task].Add(user.id, user);
+				assignment new_assignment = new assignment();
+				new_assignment.taskName = task.name;
+				new_assignment.userId = user.id;
+				this.db.assignments.Add(new_assignment);
+				this.db.SaveChanges();
+			}
 		}
 
 		public void removeUserFromTask() 
