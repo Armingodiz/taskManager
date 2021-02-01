@@ -128,21 +128,27 @@ namespace taskManager
 
 		public void removeUserFromTask() 
 		{
-			Console.WriteLine("Enter task name :");
-			string taskName = Console.ReadLine();
-			Console.WriteLine("Enter user id :");
-			int userId = Convert.ToInt32(Console.ReadLine());
-			User user = users[userId];
-			Task task = tasks[taskName];
-			assignments[task].Remove(userId);
-			assignment new_assignment = new assignment();
-			foreach(assignment tmp in this.db.assignments) 
-			{
-				if (tmp.taskName.Replace(" ", "") == task.name && tmp.userId == userId)
-					new_assignment = tmp;
-			}
-			this.db.assignments.Remove(new_assignment);
-			this.db.SaveChanges();
+			this.showAssignments();
+			User user = this.ChoseUser();
+			Task task = this.ChoseTask();
+			bool check = assignments[task].TryGetValue(user.id, out User user1);
+            if (check)
+            {
+				assignments[task].Remove(user.id);
+				assignment new_assignment = new assignment();
+				foreach (assignment tmp in this.db.assignments)
+				{
+					if (tmp.taskName.Replace(" ", "") == task.name && tmp.userId == user.id)
+						new_assignment = tmp;
+				}
+				this.db.assignments.Remove(new_assignment);
+				this.db.SaveChanges();
+            }
+            else
+            {
+				Console.WriteLine("there is no assignment with this information !!");
+            }
+
 		}
 
 		public void showInfo()
